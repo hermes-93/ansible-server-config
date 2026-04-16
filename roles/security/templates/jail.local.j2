@@ -1,0 +1,30 @@
+# Managed by Ansible — do not edit manually
+# Role: security / fail2ban
+
+[DEFAULT]
+bantime   = {{ fail2ban_bantime }}
+findtime  = {{ fail2ban_findtime }}
+maxretry  = {{ fail2ban_maxretry }}
+destemail = {{ fail2ban_destemail }}
+action    = {{ fail2ban_action }}
+backend   = systemd
+
+[sshd]
+enabled  = true
+port     = {{ ssh_port }}
+filter   = sshd
+logpath  = %(sshd_log)s
+maxretry = {{ fail2ban_maxretry }}
+bantime  = {{ fail2ban_bantime }}
+
+[nginx-http-auth]
+enabled  = false
+filter   = nginx-http-auth
+port     = http,https
+logpath  = /var/log/nginx/error.log
+
+[nginx-limit-req]
+enabled  = false
+filter   = nginx-limit-req
+port     = http,https
+logpath  = /var/log/nginx/error.log
