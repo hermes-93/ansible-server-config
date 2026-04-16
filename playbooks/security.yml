@@ -1,0 +1,8 @@
+---
+# Security hardening only — run this for emergency re-hardening
+- name: Apply security hardening to all hosts
+  hosts: all
+  become: true
+  roles:
+    - role: security
+      tags: [security]
