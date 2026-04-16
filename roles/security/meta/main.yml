@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: security
+  author: hermes-93
+  description: Server security hardening — SSH, fail2ban, ufw firewall, auditd, sysctl
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - security
+    - hardening
+    - ssh
+    - firewall
+
+dependencies:
+  - role: common
