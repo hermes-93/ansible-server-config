@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: nginx
+  author: hermes-93
+  description: Install and configure Nginx with vhost templates on Ubuntu
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - nginx
+    - web
+    - proxy
+
+dependencies:
+  - role: common
