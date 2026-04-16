@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: common
+  author: hermes-93
+  description: Base server configuration — packages, swap, sysctl tuning, NTP, timezone
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - system
+    - base
+    - common
+
+dependencies: []
