@@ -1,0 +1,66 @@
+---
+- name: Verify — check expected state
+  hosts: all
+  become: true
+  tasks:
+    - name: Check common packages are installed
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      check_mode: true
+      loop:
+        - curl
+        - wget
+        - git
+        - vim
+        - jq
+
+    - name: Check nginx is installed
+      ansible.builtin.package:
+        name: nginx
+        state: present
+      check_mode: true
+
+    - name: Check nginx service is enabled
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+      check_mode: true
+      register: nginx_service
+      failed_when: nginx_service.failed is defined and nginx_service.failed
+
+    - name: Check Docker is installed
+      ansible.builtin.command: docker --version
+      changed_when: false
+      register: docker_check
+
+    - name: Verify Docker version output
+      ansible.builtin.assert:
+        that:
+          - docker_check.rc == 0
+          - "'Docker version' in docker_check.stdout"
+        fail_msg: "Docker is not installed or not working"
+
+    - name: Check fail2ban is installed
+      ansible.builtin.package:
+        name: fail2ban
+        state: present
+      check_mode: true
+
+    - name: Check /etc/ssh/sshd_config is hardened
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "PermitRootLogin no"
+        state: present
+      check_mode: true
+      register: sshd_check
+      failed_when: sshd_check.changed
+
+    - name: Check PasswordAuthentication is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "PasswordAuthentication no"
+        state: present
+      check_mode: true
+      register: pw_check
+      failed_when: pw_check.changed
