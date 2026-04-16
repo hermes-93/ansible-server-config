@@ -1,0 +1,52 @@
+---
+- name: Verify security role
+  hosts: all
+  become: true
+  tasks:
+    - name: Verify PermitRootLogin is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "PermitRootLogin no"
+        state: present
+      check_mode: true
+      register: root_login_check
+      failed_when: root_login_check.changed
+
+    - name: Verify PasswordAuthentication is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "PasswordAuthentication no"
+        state: present
+      check_mode: true
+      register: pw_auth_check
+      failed_when: pw_auth_check.changed
+
+    - name: Verify MaxAuthTries is set
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "MaxAuthTries 3"
+        state: present
+      check_mode: true
+      register: max_auth_check
+      failed_when: max_auth_check.changed
+
+    - name: Verify fail2ban is installed
+      ansible.builtin.package:
+        name: fail2ban
+        state: present
+      check_mode: true
+
+    - name: Verify fail2ban jail.local exists
+      ansible.builtin.stat:
+        path: /etc/fail2ban/jail.local
+      register: jail_local
+      failed_when: not jail_local.stat.exists
+
+    - name: Verify password aging in login.defs
+      ansible.builtin.lineinfile:
+        path: /etc/login.defs
+        line: "PASS_MAX_DAYS   90"
+        state: present
+      check_mode: true
+      register: pass_age_check
+      failed_when: pass_age_check.changed
