@@ -1,0 +1,92 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  tags: [common, packages]
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: safe
+  tags: [common, packages]
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+  tags: [common, packages]
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+  notify: Restart cron
+  tags: [common, timezone]
+
+- name: Ensure NTP is installed
+  ansible.builtin.apt:
+    name: systemd-timesyncd
+    state: present
+  when: ntp_enabled
+  tags: [common, ntp]
+
+- name: Enable and start NTP sync
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
+  when: ntp_enabled
+  tags: [common, ntp]
+
+- name: Configure sysctl parameters
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop: "{{ common_sysctl_settings }}"
+  tags: [common, sysctl]
+
+- name: Create swap file
+  ansible.builtin.command:
+    cmd: dd if=/dev/zero of=/swapfile bs=1M count={{ swap_size_mb }}
+    creates: /swapfile
+  when: swap_enabled
+  tags: [common, swap]
+
+- name: Set swap file permissions
+  ansible.builtin.file:
+    path: /swapfile
+    owner: root
+    group: root
+    mode: "0600"
+  when: swap_enabled
+  tags: [common, swap]
+
+- name: Format swap file
+  ansible.builtin.command:
+    cmd: mkswap /swapfile
+    creates: /proc/swaps
+  when: swap_enabled
+  tags: [common, swap]
+
+- name: Enable swap
+  ansible.builtin.command:
+    cmd: swapon /swapfile
+  register: swapon_result
+  failed_when: swapon_result.rc != 0 and 'already' not in swapon_result.stderr
+  changed_when: swapon_result.rc == 0
+  when: swap_enabled
+  tags: [common, swap]
+
+- name: Add swap to fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "/swapfile none swap sw 0 0"
+    state: present
+  when: swap_enabled
+  tags: [common, swap]
+
+- name: Remove unused packages
+  ansible.builtin.apt:
+    autoremove: true
+  tags: [common, cleanup]
