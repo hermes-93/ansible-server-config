@@ -1,0 +1,64 @@
+---
+# Security hardening defaults
+
+# SSH hardening
+ssh_port: 22
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+ssh_pubkey_authentication: "yes"
+ssh_max_auth_tries: 3
+ssh_login_grace_time: 30
+ssh_allow_tcp_forwarding: "no"
+ssh_x11_forwarding: "no"
+ssh_allow_agent_forwarding: "no"
+ssh_client_alive_interval: 300
+ssh_client_alive_count_max: 2
+# List of users allowed to SSH (empty = all users allowed)
+ssh_allowed_users: []
+
+# fail2ban
+fail2ban_enabled: true
+fail2ban_bantime: 3600        # seconds
+fail2ban_findtime: 600        # seconds
+fail2ban_maxretry: 5
+fail2ban_destemail: root@localhost
+fail2ban_action: "%(action_)s"
+
+# UFW firewall
+ufw_enabled: true
+ufw_default_incoming: deny
+ufw_default_outgoing: allow
+ufw_rules:
+  - { rule: allow, port: "{{ ssh_port }}", proto: tcp, comment: "SSH" }
+  - { rule: allow, port: "80",             proto: tcp, comment: "HTTP" }
+  - { rule: allow, port: "443",            proto: tcp, comment: "HTTPS" }
+
+# auditd
+auditd_enabled: true
+
+# Kernel security sysctl
+security_sysctl_settings:
+  # Disable IP forwarding (unless this is a router)
+  - { name: "net.ipv4.ip_forward",                    value: "0" }
+  # Prevent SYN flood attacks
+  - { name: "net.ipv4.tcp_syncookies",                value: "1" }
+  # Disable ICMP redirects
+  - { name: "net.ipv4.conf.all.accept_redirects",     value: "0" }
+  - { name: "net.ipv4.conf.default.accept_redirects", value: "0" }
+  - { name: "net.ipv6.conf.all.accept_redirects",     value: "0" }
+  # Disable source routing
+  - { name: "net.ipv4.conf.all.accept_source_route",  value: "0" }
+  - { name: "net.ipv4.conf.default.accept_source_route", value: "0" }
+  # Log martian packets
+  - { name: "net.ipv4.conf.all.log_martians",         value: "1" }
+  # Protect against SMURF attacks
+  - { name: "net.ipv4.icmp_echo_ignore_broadcasts",   value: "1" }
+  # Ignore bogus ICMP error responses
+  - { name: "net.ipv4.icmp_ignore_bogus_error_responses", value: "1" }
+  # Randomize address space (ASLR)
+  - { name: "kernel.randomize_va_space",              value: "2" }
+  # Restrict dmesg to root
+  - { name: "kernel.dmesg_restrict",                  value: "1" }
+  # Restrict /proc to owner
+  - { name: "fs.protected_hardlinks",                 value: "1" }
+  - { name: "fs.protected_symlinks",                  value: "1" }
