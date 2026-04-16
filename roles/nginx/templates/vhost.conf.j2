@@ -1,0 +1,23 @@
+server {
+    listen {{ nginx_http_port }};
+    listen [::]:{{ nginx_http_port }};
+
+    server_name {{ item.server_name }};
+    root {{ item.root }};
+    index {{ item.index | default('index.html index.htm') }};
+
+    access_log {{ item.access_log | default('/var/log/nginx/access.log') }};
+    error_log  {{ item.error_log  | default('/var/log/nginx/error.log') }};
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml)$ {
+        expires 5d;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
