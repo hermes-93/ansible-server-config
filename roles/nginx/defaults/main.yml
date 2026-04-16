@@ -1,0 +1,33 @@
+---
+# Nginx role defaults
+
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+nginx_keepalive_timeout: 65
+nginx_server_tokens: "off"
+nginx_client_max_body_size: "64m"
+nginx_gzip: "on"
+
+nginx_http_port: 80
+nginx_https_port: 443
+
+# Log format
+nginx_log_format: combined
+
+# Virtual hosts to configure
+nginx_vhosts: []
+# Example:
+# nginx_vhosts:
+#   - server_name: "example.com www.example.com"
+#     root: /var/www/html
+#     index: "index.html"
+#     access_log: /var/log/nginx/example_access.log
+#     error_log: /var/log/nginx/example_error.log
+
+# Whether to remove the default vhost
+nginx_remove_default_vhost: true
+
+# Directories
+nginx_conf_dir: /etc/nginx
+nginx_vhost_dir: /etc/nginx/sites-available
+nginx_vhost_enabled_dir: /etc/nginx/sites-enabled
