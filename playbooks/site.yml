@@ -1,0 +1,28 @@
+---
+# Master playbook — applies all roles to all servers
+- name: Apply common configuration to all hosts
+  hosts: all
+  become: true
+  roles:
+    - role: common
+      tags: [common]
+
+- name: Configure web servers
+  hosts: webservers
+  become: true
+  roles:
+    - role: nginx
+      tags: [nginx]
+    - role: docker
+      tags: [docker]
+    - role: security
+      tags: [security]
+
+- name: Configure DB servers
+  hosts: dbservers
+  become: true
+  roles:
+    - role: docker
+      tags: [docker]
+    - role: security
+      tags: [security]
