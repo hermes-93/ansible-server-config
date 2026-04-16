@@ -1,0 +1,33 @@
+*.retry
+*.pyc
+__pycache__/
+.pytest_cache/
+.molecule/
+molecule/*/.molecule/
+
+# Ansible vault password files
+.vault_pass
+vault_password_file
+*.vault
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+
+# Temp / OS
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Python virtualenv
+.venv/
+venv/
+
+# Logs
+*.log
+
+# Secrets
+secrets.yml
+group_vars/all/vault.yml
