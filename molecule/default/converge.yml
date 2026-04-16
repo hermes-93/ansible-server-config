@@ -1,0 +1,15 @@
+---
+- name: Converge — apply all roles
+  hosts: all
+  become: true
+  vars:
+    # Override security settings for test environment
+    ufw_enabled: false          # Docker containers can't run ufw
+    auditd_enabled: false       # auditd not available in containers
+    swap_enabled: false         # No swap in containers
+    ssh_allowed_users: []
+  roles:
+    - role: common
+    - role: docker
+    - role: nginx
+    - role: security
