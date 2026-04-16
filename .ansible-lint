@@ -1,0 +1,16 @@
+---
+profile: production
+
+exclude_paths:
+  - .git/
+  - molecule/
+
+skip_list:
+  - yaml[line-length]    # handled by yamllint with a higher limit
+
+warn_list:
+  - experimental
+
+loop_var_prefix: "^(item|{role}_)"
+
+use_default_rules: true
