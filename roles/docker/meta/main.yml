@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: docker
+  author: hermes-93
+  description: Install Docker CE and Docker Compose v2 on Ubuntu servers
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - docker
+    - containers
+
+dependencies:
+  - role: common
