@@ -1,0 +1,13 @@
+---
+- name: Converge — security role only
+  hosts: all
+  become: true
+  vars:
+    ufw_enabled: false
+    auditd_enabled: false
+    fail2ban_enabled: true
+    ssh_permit_root_login: "no"
+    ssh_password_authentication: "no"
+  roles:
+    - role: common
+    - role: security
