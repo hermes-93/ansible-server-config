@@ -1,0 +1,18 @@
+---
+# Variables for webservers group
+
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+nginx_keepalive_timeout: 65
+
+# Ports nginx listens on
+nginx_http_port: 80
+nginx_https_port: 443
+
+# Vhosts to configure
+nginx_vhosts:
+  - server_name: "example.com www.example.com"
+    root: /var/www/html
+    index: "index.html index.htm"
+    access_log: /var/log/nginx/example_access.log
+    error_log: /var/log/nginx/example_error.log
