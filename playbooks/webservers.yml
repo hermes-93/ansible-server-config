@@ -1,0 +1,17 @@
+---
+# Playbook for web servers — nginx + docker + security
+- name: Configure web servers
+  hosts: webservers
+  become: true
+  vars_files:
+    - ../inventory/group_vars/all.yml
+    - ../inventory/group_vars/webservers.yml
+  roles:
+    - role: common
+      tags: [common]
+    - role: nginx
+      tags: [nginx]
+    - role: docker
+      tags: [docker]
+    - role: security
+      tags: [security]
