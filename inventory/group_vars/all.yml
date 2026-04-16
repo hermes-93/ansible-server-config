@@ -1,0 +1,33 @@
+---
+# Variables applied to all hosts
+
+# Timezone
+timezone: UTC
+
+# System packages to install on every host
+common_packages:
+  - curl
+  - wget
+  - git
+  - htop
+  - vim
+  - tmux
+  - unzip
+  - jq
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - python3-pip
+  - net-tools
+
+# Syslog remote target (optional)
+syslog_enabled: false
+syslog_host: ""
+syslog_port: 514
+
+# Swap settings
+swap_enabled: true
+swap_size_mb: 2048
+
+# Default SSH port (used by security role)
+ssh_port: 22
