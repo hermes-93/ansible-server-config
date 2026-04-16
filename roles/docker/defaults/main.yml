@@ -1,0 +1,31 @@
+---
+# Docker role defaults
+
+# Docker edition: ce (Community Edition)
+docker_edition: ce
+
+# Docker package version — empty means latest
+docker_version: ""
+
+# Users to add to the docker group (can use passwordless docker)
+docker_users: []
+# Example:
+# docker_users:
+#   - ubuntu
+#   - deploy
+
+# Docker daemon configuration
+docker_daemon_options:
+  log-driver: "json-file"
+  log-opts:
+    max-size: "100m"
+    max-file: "3"
+  storage-driver: "overlay2"
+  live-restore: true
+
+# Docker Compose version (v2 plugin — installed via apt)
+docker_compose_plugin: true
+
+# Enable Docker service at boot
+docker_service_enabled: true
+docker_service_state: started
