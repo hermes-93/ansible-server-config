@@ -1,0 +1,135 @@
+---
+- name: Apply kernel security sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop: "{{ security_sysctl_settings }}"
+  tags: [security, sysctl]
+
+- name: Configure SSH hardening
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+    validate: "sshd -t -f %s"
+  notify: Restart sshd
+  tags: [security, ssh]
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+  when: fail2ban_enabled
+  tags: [security, fail2ban]
+
+- name: Deploy fail2ban local jail config
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+  when: fail2ban_enabled
+  notify: Restart fail2ban
+  tags: [security, fail2ban]
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+  when: fail2ban_enabled
+  tags: [security, fail2ban]
+
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+  when: ufw_enabled
+  tags: [security, ufw]
+
+- name: Set ufw default incoming policy
+  community.general.ufw:
+    default: "{{ ufw_default_incoming }}"
+    direction: incoming
+  when: ufw_enabled
+  tags: [security, ufw]
+
+- name: Set ufw default outgoing policy
+  community.general.ufw:
+    default: "{{ ufw_default_outgoing }}"
+    direction: outgoing
+  when: ufw_enabled
+  tags: [security, ufw]
+
+- name: Apply ufw rules
+  community.general.ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port | string }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment | default('') }}"
+  loop: "{{ ufw_rules }}"
+  when: ufw_enabled
+  tags: [security, ufw]
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
+  when: ufw_enabled
+  tags: [security, ufw]
+
+- name: Install auditd
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+  when: auditd_enabled
+  tags: [security, auditd]
+
+- name: Deploy auditd rules
+  ansible.builtin.copy:
+    src: audit.rules
+    dest: /etc/audit/rules.d/hardening.rules
+    owner: root
+    group: root
+    mode: "0640"
+  when: auditd_enabled
+  notify: Restart auditd
+  tags: [security, auditd]
+
+- name: Enable and start auditd
+  ansible.builtin.systemd:
+    name: auditd
+    enabled: true
+    state: started
+  when: auditd_enabled
+  tags: [security, auditd]
+
+- name: Remove unused packages (telnet, rsh, etc.)
+  ansible.builtin.apt:
+    name:
+      - telnet
+      - rsh-client
+      - rsh-server
+      - nis
+      - yp-tools
+    state: absent
+    purge: true
+  tags: [security, packages]
+
+- name: Set password aging policies (chage defaults)
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^PASS_MAX_DAYS', line: 'PASS_MAX_DAYS   90' }
+    - { regexp: '^PASS_MIN_DAYS', line: 'PASS_MIN_DAYS   1' }
+    - { regexp: '^PASS_WARN_AGE', line: 'PASS_WARN_AGE   14' }
+  tags: [security, passwords]
