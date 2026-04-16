@@ -1,0 +1,46 @@
+## Hardening audit rules — managed by Ansible
+
+# Delete all existing rules
+-D
+
+# Increase buffer size
+-b 8192
+
+# Failure mode: 1 = print, 2 = panic
+-f 1
+
+# ─── Identity / Authentication ───────────────────────────────────────────────
+-w /etc/passwd         -p wa -k identity
+-w /etc/shadow         -p wa -k identity
+-w /etc/group          -p wa -k identity
+-w /etc/gshadow        -p wa -k identity
+-w /etc/sudoers        -p wa -k sudoers
+-w /etc/sudoers.d/     -p wa -k sudoers
+
+# ─── SSH Configuration ───────────────────────────────────────────────────────
+-w /etc/ssh/sshd_config -p wa -k sshd_config
+
+# ─── Privileged commands ─────────────────────────────────────────────────────
+-a always,exit -F arch=b64 -S execve -F euid=0 -k privileged
+-a always,exit -F arch=b32 -S execve -F euid=0 -k privileged
+
+# Monitor su and sudo
+-w /bin/su    -p x -k priv_esc
+-w /usr/bin/sudo -p x -k priv_esc
+
+# ─── File system mounts ──────────────────────────────────────────────────────
+-a always,exit -F arch=b64 -S mount -k mounts
+-a always,exit -F arch=b32 -S mount -k mounts
+
+# ─── Kernel module loading ───────────────────────────────────────────────────
+-w /sbin/insmod  -p x -k modules
+-w /sbin/rmmod   -p x -k modules
+-w /sbin/modprobe -p x -k modules
+-a always,exit -F arch=b64 -S init_module -S delete_module -k modules
+
+# ─── System time changes ─────────────────────────────────────────────────────
+-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time_change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time_change
+
+# Make the configuration immutable (remove to allow changes at runtime)
+# -e 2
