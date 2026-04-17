@@ -5,6 +5,8 @@
   vars:
     ufw_enabled: false
     auditd_enabled: false
+    swap_enabled: false
+    ntp_enabled: false
     fail2ban_enabled: true
     ssh_permit_root_login: "no"
     ssh_password_authentication: "no"
