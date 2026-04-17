@@ -10,6 +10,7 @@
     ssh_allowed_users: []
     docker_service_state: stopped   # Can't start Docker-in-Docker reliably
     docker_service_enabled: false
+    ntp_enabled: false              # systemd-timesyncd not idempotent in containers
   roles:
     - role: common
     - role: docker
