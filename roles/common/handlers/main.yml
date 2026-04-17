@@ -3,3 +3,4 @@
   ansible.builtin.systemd:
     name: cron
     state: restarted
+  failed_when: false
