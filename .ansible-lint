@@ -6,7 +6,8 @@ exclude_paths:
   - molecule/
 
 skip_list:
-  - yaml[line-length]    # handled by yamllint with a higher limit
+  - yaml[line-length]            # handled by yamllint with a higher limit
+  - var-naming[no-role-prefix]   # domain-prefixed vars (ssh_, fail2ban_) are intentional
 
 warn_list:
   - experimental
