@@ -20,6 +20,7 @@ common_packages:
   - python3-pip
   - net-tools
   - apt-transport-https
+  - tzdata
 
 # Swap
 swap_enabled: true
