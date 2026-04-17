@@ -8,6 +8,12 @@
   loop: "{{ security_sysctl_settings }}"
   tags: [security, sysctl]
 
+- name: Ensure openssh-server is installed
+  ansible.builtin.apt:
+    name: openssh-server
+    state: present
+  tags: [security, ssh]
+
 - name: Configure SSH hardening
   ansible.builtin.template:
     src: sshd_config.j2
