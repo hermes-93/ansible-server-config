@@ -3,11 +3,13 @@
   hosts: all
   become: true
   vars:
-    # Override security settings for test environment
+    # Override settings for test environment (Docker container)
     ufw_enabled: false          # Docker containers can't run ufw
     auditd_enabled: false       # auditd not available in containers
     swap_enabled: false         # No swap in containers
     ssh_allowed_users: []
+    docker_service_state: stopped   # Can't start Docker-in-Docker reliably
+    docker_service_enabled: false
   roles:
     - role: common
     - role: docker
