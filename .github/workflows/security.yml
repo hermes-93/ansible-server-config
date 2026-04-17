@@ -1,0 +1,66 @@
+---
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"   # Weekly Monday 06:00 UTC
+
+jobs:
+  checkov:
+    name: Checkov (Ansible IaC scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov on Ansible roles
+        run: |
+          checkov --directory roles \
+            --framework ansible \
+            --output cli \
+            --soft-fail
+        continue-on-error: false
+
+      - name: Run Checkov SARIF report
+        run: |
+          checkov --directory roles \
+            --framework ansible \
+            --output sarif \
+            --output-file-path /tmp/checkov-results.sarif \
+            --soft-fail || true
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: /tmp/checkov-results.sarif
+        continue-on-error: true
+
+  semgrep:
+    name: Semgrep (secrets / misconfigurations)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/secrets
+            p/yaml
+        continue-on-error: true
